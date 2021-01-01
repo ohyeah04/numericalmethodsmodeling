@@ -29,8 +29,8 @@ I(4,2)=1;
 R(1,1)=0;
 
 %population parameters:
-b=0.3; %infection rate
-delta=0.1; %recovery rate
+b=0.8; %infection rate
+delta=0.2; %recovery rate
 
 % importing adjacency matrix file from task description; 
 % csvread function has parameters (filename,R1,C1,[R1, C1, R2, C2] to set
@@ -65,8 +65,8 @@ for i = 1:N
         k2R(n) = fR(t(i)+h/2, I(i,n)+h/2*k1I(n) ,R(i,n)+h/2*k1R(n));
             
         % Summing all results into final equation:
-        I(i+1,n)=I(i,n)+(1/6)*h*(k1I(n) + 2*k2I(n));
-        R(i+1,n)=R(i,n)+(1/6)*h*(k1R(n) + 2*k2R(n));
+        I(i+1,n)=I(i,n)+h/2*(k1I(n) + k2I(n));
+        R(i+1,n)=R(i,n)+h/2*(k1R(n) + k2R(n));
      end
 end
 
@@ -91,26 +91,53 @@ Sp = Sp/10;
 Ip = Ip/10;
 Rp = Rp/10;
 
+%% Error test
+%True values calculated here:
+Itrue=4*exp(-(4*t)/5).*(exp((4*t)/5)/3 - 3/10) - exp(-t/5).*((4*exp(t/5))/3 - 13/10);
+Rtrue=exp(-t/5).*((4*exp(t/5))/3 - 13/10) - exp(-(4*t)/5).*(exp((4*t)/5)/3 - 3/10);
+Strue=1-Itrue-Rtrue;
 
-%% Plotting resultant data
-% to set up parameters of graph, using hold command
+%Calculating relative error: abs(Approxmate error/True Value)*100
+%transposing matrices of true values for convenience; rounding till 10^-4:
+Itruetranspose=round(transpose(Itrue),4);
+Rtruetranspose=round(transpose(Rtrue),4);
+Struetranspose=round(transpose(Strue),4);
+
+%finding absoulute error:
+Iabsolute=abs(Ip-Itruetranspose);
+Rabsolute=abs(Rp-Rtruetranspose);
+Sabsolute=abs(Sp-Struetranspose);
+
+%creating matrix where results will be written
+Ierror = [];
+Rerror = [];
+Serror = [];
+
+%calculating error %
+for n=1:1001
+Ierror = [Ierror abs(Iabsolute(n)/Itruetranspose(n))*100];
+Rerror = [Rerror abs(Rabsolute(n)/Rtruetranspose(n))*100];
+Serror = [Serror abs(Sabsolute(n)/Struetranspose(n))*100];
+end
+
+%plotting the result
+
+figure('name', 'True Value graphs')
 hold on
-
-%plotting S,I and R of node 10 vs. time, then setting up line width as 2 and
-%setting up graphs' colors 
-plot(t,Sp, 'LineWidth', 2, 'Color', [0 0 1])
-plot(t,Ip, 'LineWidth', 2, 'Color', [1 0 0])
-plot(t,Rp, 'LineWidth', 2, 'Color', [0 1 0])
-
-%legend of the graph for better understanding and navigation
-legend('S - node being healthy and not infected','I - node being infected by the virus','R - node recovering from the virus')
-grid on %turning on the grid
-xlim auto  %automatic scaling of x axis limits
-title('Modeling result for Second order Runge-Kutta Method') %setting up the title of the plot
-xlabel('time (t) days') %x-axis label 
-ylabel('Density') %y-axis lablel
-%closing hold 
+grid on
+plot(t,Itrue, 'LineWidth', 2, 'Color', [1 0 0])
+plot(t,Rtrue, 'LineWidth', 2, 'Color', [0 1 0])
+plot(t,Strue, 'LineWidth', 2, 'Color', [0 0 1])
+legend('I','R','S')
 hold off
 
+figure('name', 'Error (%) Graphs')
+hold on
+grid on
+plot(t,Ierror, 'LineWidth', 2, 'Color', [1 0 0])
+plot(t,Rerror, 'LineWidth', 2, 'Color', [0 1 0])
+plot(t,Serror, 'LineWidth', 2, 'Color', [0 0 1])
+legend('I error (%)','R error (%)','S error (%)')
+hold off
 
 toc; %elapsed time

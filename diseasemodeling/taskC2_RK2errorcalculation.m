@@ -65,8 +65,8 @@ for i = 1:N
         k2R(n) = fR(t(i)+h/2, I(i,n)+h/2*k1I(n) ,R(i,n)+h/2*k1R(n));
             
         % Summing all results into final equation:
-        I(i+1,n)=I(i,n)+(1/6)*h*(k1I(n) + 2*k2I(n));
-        R(i+1,n)=R(i,n)+(1/6)*h*(k1R(n) + 2*k2R(n));
+        I(i+1,n)=I(i,n)+h/2*(k1I(n) + k2I(n));
+        R(i+1,n)=R(i,n)+h/2*(k1R(n) + k2R(n));
      end
 end
 
