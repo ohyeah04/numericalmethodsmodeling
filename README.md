@@ -1,2 +1,2 @@
 # numericalmethodsmodeling
-MATLAB modeling of disease spread, Numerical Methods Final assignment
+Some MATLAB codes from numerical methods
